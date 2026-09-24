@@ -31,6 +31,7 @@
     banner: $('alertBanner'),
     btnNotify: $('btnNotify'),
     notifyState: $('notifyState'),
+    wakeHint: $('wakeHint'),
     presets: [].slice.call(document.querySelectorAll('.chip'))
   };
 
@@ -395,6 +396,7 @@
     if (state.remainingMs <= 0) resetTimer();
     hint(ui.durationHint, '');
     prefetchSpeech(); // clips ready before the first alert comes due
+    requestWakeLock(); // display stays awake until the timer stops
     state.endAt = Date.now() + state.remainingMs;
     state.running = true;
     hideBanner();
@@ -408,6 +410,7 @@
     state.remainingMs = Math.max(0, state.endAt - Date.now());
     state.running = false;
     if (state.loop) { clearInterval(state.loop); state.loop = null; }
+    releaseWakeLock();
     renderTimer();
   }
 
@@ -416,6 +419,7 @@
     if (state.loop) { clearInterval(state.loop); state.loop = null; }
     state.remainingMs = state.durationMs;
     state.fired = new Set();
+    releaseWakeLock();
     hideBanner();
     renderTimer();
     renderMilestones();
@@ -425,6 +429,7 @@
     state.running = false;
     if (state.loop) { clearInterval(state.loop); state.loop = null; }
     state.remainingMs = 0;
+    releaseWakeLock();
     renderTimer();
     renderMilestones();
     fireTimeout();
@@ -544,6 +549,41 @@
     } catch (e) { updateNotifyUI(); }
   }
 
+  /* ---------- screen wake lock: keep the display on while counting ----------
+   * Wake Lock API (Baseline 2025: Chrome, Edge, Firefox 126+, Safari 16.4+;
+   * HTTPS only). Browsers auto-release when the page is hidden, so the lock is
+   * re-acquired on visibilitychange for as long as the timer should hold it,
+   * and released the moment the timer stops (pause / reset / time-out).
+   */
+  var wake = { wanted: false, sentinel: null };
+
+  function wakeSupported() { return 'wakeLock' in navigator; }
+
+  function requestWakeLock() {
+    wake.wanted = true;
+    if (!wakeSupported() || wake.sentinel) return;
+    if (document.visibilityState !== 'visible') return; // retried when visible again
+    navigator.wakeLock.request('screen').then(function (s) {
+      if (!wake.wanted) { s.release().catch(function () {}); return; }
+      wake.sentinel = s;
+      s.addEventListener('release', function () { wake.sentinel = null; });
+      hint(ui.wakeHint, 'Screen stays on until the timer stops.');
+    }).catch(function () {
+      // refused (battery saver / power mode): timer still works, screen may sleep
+      hint(ui.wakeHint, 'Couldn’t keep the screen on — it may sleep.', true);
+    });
+  }
+
+  function releaseWakeLock() {
+    wake.wanted = false;
+    if (wake.sentinel) {
+      var s = wake.sentinel;
+      wake.sentinel = null;
+      s.release().catch(function () {});
+      hint(ui.wakeHint, '');
+    }
+  }
+
   /* ---------- events ---------- */
 
   ui.btnMain.addEventListener('click', function () {
@@ -593,7 +633,10 @@
 
   // Background tabs throttle timers; recompute the instant the tab is visible again.
   document.addEventListener('visibilitychange', function () {
-    if (!document.hidden) tick();
+    if (!document.hidden) {
+      tick();
+      if (wake.wanted && !wake.sentinel) requestWakeLock(); // browsers dropped it while hidden
+    }
   });
 
   window.addEventListener('focus', tick);
@@ -604,6 +647,9 @@
   ui.duration.value = fmt(state.durationMs);
   updatePresetChips();
   updateNotifyUI();
+  if (!wakeSupported()) {
+    hint(ui.wakeHint, 'This browser can’t keep the screen awake — it may sleep during the timer.', true);
+  }
   renderTimer();
   renderMilestones();
   tickClock();

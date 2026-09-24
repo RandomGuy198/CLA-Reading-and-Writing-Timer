@@ -17,6 +17,11 @@ reading practice. No build step, no dependencies — plain HTML, CSS, and JavaSc
   Milestones at odd values without a clip fall back to chime + banner.
 - **Desktop notifications** — click **Enable desktop alerts** once; the browser then
   shows a system notification for every alert too.
+- **Screen stays on** — while the timer runs, the Wake Lock API keeps a phone
+  display awake (Chrome, Edge, Firefox 126+, Safari 16.4+; HTTPS sites like the
+  one below). The lock releases on pause, reset, or time-out, and re-acquires
+  when you return to the tab. Older browsers just sleep normally — the countdown
+  stays exact either way.
 - **Hanoi time** — the clock and the "Ends at" time always display in
   `Asia/Ho_Chi_Minh (GMT+7)`, no matter which timezone your device is set to.
 - **Simple, responsive UI** — works in Chrome and Firefox on desktop and mobile,
@@ -53,3 +58,8 @@ python -m http.server 8000
   alert that comes due while the tab is hidden fires the moment the tab becomes
   visible again. For an exam simulation, keep the timer tab open and visible
   (minimized is fine on desktop; on mobile, keep the browser open).
+- The screen wake lock is only held while the timer is counting: it drops the
+  moment you pause, reset, or the time runs out, so it never keeps the screen
+  (and battery) awake after practice ends. Aggressive battery-saver modes can
+  still override a wake lock — plug the phone in for long sessions if yours is
+  strict about that.
