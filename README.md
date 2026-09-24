@@ -9,6 +9,9 @@ reading practice. No build step, no dependencies — plain HTML, CSS, and JavaSc
   background tab cannot make it drift. Pauses and resumes exactly where you left off.
 - **Custom milestones** — add any "time remaining" alerts you want, e.g. `05:00`,
   `01:00`. Milestones never stop the timer — it keeps running to `00:00`.
+- **Two practice presets** — `20m` and `30m` (typical IELTS Reading lengths).
+  Tapping either loads that duration with the standard `05:00` and `01:00`
+  milestone alerts ready; edit them afterwards if you need others.
 - **Loud chime + spoken alerts** — each alert plays a loud two-tone chime, then a
   spoken English phrase ("5 minutes left", "1 minute left", "Time's up") generated
   with Microsoft Edge TTS, Turkish male voice `tr-TR-AhmetNeural`. Bundled MP3s

@@ -611,7 +611,13 @@
   ui.presets.forEach(function (chip) {
     chip.addEventListener('click', function () {
       hint(ui.durationHint, '');
-      setDuration(Number(chip.dataset.preset) * 1000, true);
+      // a preset is a ready-made practice mode: duration + the standard 5:00 / 1:00 alerts
+      setDuration(Number(chip.dataset.preset) * 1000, false);
+      state.milestones = [5 * 60000, 60000].filter(function (m) { return m < state.durationMs; });
+      state.fired = new Set();
+      save();
+      renderMilestones();
+      renderTimer();
     });
   });
 
