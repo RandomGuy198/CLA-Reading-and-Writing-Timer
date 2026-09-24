@@ -146,20 +146,20 @@
   }
 
   /* ---------- spoken alerts (pre-generated Edge TTS clips) ----------
-   * Bundled MP3s in ./audio, voiced by tr-TR-AhmetNeural (Turkish male)
-   * speaking English: m{n} = minutes left, s{n} = seconds left, timeout.
+   * Bundled MP3s alongside index.html, voiced by tr-TR-AhmetNeural (Turkish
+   * male) speaking English: m{n} = minutes left, s{n} = seconds left, timeout.
    */
   var speechCache = {};
 
   function speechFile(ms) {
-    if (ms <= 0) return 'audio/timeout.mp3';
+    if (ms <= 0) return 'timeout.mp3';
     if (ms % 60000 === 0) {
       var m = ms / 60000;
-      return m <= 60 ? 'audio/m' + m + '.mp3' : null;
+      return m <= 60 ? 'm' + m + '.mp3' : null;
     }
     if (ms % 1000 === 0) {
       var s = ms / 1000;
-      return s <= 59 ? 'audio/s' + s + '.mp3' : null;
+      return s <= 59 ? 's' + s + '.mp3' : null;
     }
     return null; // odd values fall back to chime + banner only
   }
@@ -175,7 +175,7 @@
   }
 
   function prefetchSpeech() {
-    var files = state.milestones.map(speechFile).concat(['audio/timeout.mp3']);
+    var files = state.milestones.map(speechFile).concat(['timeout.mp3']);
     files.forEach(function (f) { if (f) getSpeech(f); });
   }
 
@@ -230,7 +230,7 @@
   function fireTimeout() {
     showAlert("Time's up — " + fmt(state.durationMs) + ' finished', true);
     beep('timeout');
-    speak('audio/timeout.mp3', 850);
+    speak('timeout.mp3', 850);
     notify("Time's up", 'Your ' + fmt(state.durationMs) + ' timer has finished.');
   }
 

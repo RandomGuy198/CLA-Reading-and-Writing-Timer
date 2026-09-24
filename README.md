@@ -11,8 +11,9 @@ reading practice. No build step, no dependencies — plain HTML, CSS, and JavaSc
   `01:00`. Milestones never stop the timer — it keeps running to `00:00`.
 - **Loud chime + spoken alerts** — each alert plays a loud two-tone chime, then a
   spoken English phrase ("5 minutes left", "1 minute left", "Time's up") generated
-  with Microsoft Edge TTS, Turkish male voice `tr-TR-AhmetNeural`. Bundled MP3s in
-  `audio/` (1–60 minutes, 1–59 seconds, time-out), so no server or API is needed.
+  with Microsoft Edge TTS, Turkish male voice `tr-TR-AhmetNeural`. Bundled MP3s
+  next to `index.html` — `m1`–`m60`, `s1`–`s59`, `timeout` — so no server or API
+  is needed.
   Milestones at odd values without a clip fall back to chime + banner.
 - **Desktop notifications** — click **Enable desktop alerts** once; the browser then
   shows a system notification for every alert too.
@@ -35,25 +36,14 @@ python -m http.server 8000
 
 ## Deploy to GitHub Pages
 
-1. Create a new GitHub repository (for example `reading-timer`).
-2. Copy `index.html`, `style.css`, and `app.js` into the repository root.
-3. Push:
-
-   ```bash
-   git init
-   git add .
-   git commit -m "Reading timer"
-   git branch -M main
-   git remote add origin https://github.com/<your-username>/reading-timer.git
-   git push -u origin main
-   ```
-
-4. On GitHub: **Settings → Pages → Build and deployment → Source: Deploy from a
+1. Upload every app file to the repository root — `index.html`, `style.css`,
+   `app.js`, `README.md`, and all MP3 clips (`m1`–`m60.mp3`, `s1`–`s59.mp3`,
+   `timeout.mp3`). GitHub's web uploader accepts up to 100 files per batch, so
+   split a larger set across commits.
+2. On GitHub: **Settings → Pages → Build and deployment → Source: Deploy from a
    branch → Branch: `main` / `(root)` → Save.**
-5. Your app is live at `https://<your-username>.github.io/reading-timer/`
-
-Tip: if you name the repository `<your-username>.github.io`, the app lives at the
-root address `https://<your-username>.github.io/` instead.
+3. The app is live at `https://<your-username>.github.io/<repo-name>/` — for this
+   repository: `https://randomguy198.github.io/CLA-Reading-and-Writing-Timer/`
 
 ## Notes on alerts
 
