@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#F7F5F1">
+  <meta name="description" content="A simple countdown timer with custom milestone alerts, on Hanoi time. Built for exam reading practice.">
+  <title>Reading Timer — Hanoi time</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23F7F5F1'/%3E%3Ccircle%20cx='16'%20cy='18'%20r='10.5'%20fill='none'%20stroke='%23C2410C'%20stroke-width='3'/%3E%3Cpath%20d='M16%2012v6l4.5%202.8'%20fill='none'%20stroke='%23C2410C'%20stroke-width='3'%20stroke-linecap='round'/%3E%3Crect%20x='13'%20y='3'%20width='6'%20height='3'%20rx='1'%20fill='%23C2410C'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <span class="brand">Reading Timer</span>
+      <div class="clock" title="Asia/Ho_Chi_Minh (GMT+7)">
+        <span class="clock-label">Hanoi</span>
+        <time id="hanoiClock">--:--:--</time>
+      </div>
+    </header>
+
+    <div id="alertBanner" class="banner" role="status" aria-live="assertive" hidden></div>
+
+    <section class="timer" aria-label="Countdown">
+      <p class="state-row">
+        <span id="stateTag" class="state-tag">Ready</span>
+        <span id="endsAt" class="ends-at"></span>
+      </p>
+      <div id="countdown" class="countdown" role="timer" aria-live="off">20:00</div>
+      <div class="track" aria-hidden="true"><div id="progressFill" class="fill"></div></div>
+      <div class="controls">
+        <button id="btnMain" class="btn btn-primary" type="button">Start</button>
+        <button id="btnReset" class="btn btn-secondary" type="button">Reset</button>
+      </div>
+    </section>
+
+    <section class="setup" aria-label="Timer setup">
+      <div class="block">
+        <div class="block-head">
+          <h2>Duration</h2>
+        </div>
+        <div class="duration-row">
+          <input id="durationInput" class="field" type="text" inputmode="numeric" autocomplete="off"
+                 spellcheck="false" value="20:00" placeholder="mm:ss"
+                 aria-label="Timer duration, format minutes colon seconds">
+          <div class="presets" role="group" aria-label="Duration presets">
+            <button class="chip" type="button" data-preset="600" aria-pressed="false">10m</button>
+            <button class="chip" type="button" data-preset="1200" aria-pressed="false">20m</button>
+            <button class="chip" type="button" data-preset="1500" aria-pressed="false">25m</button>
+            <button class="chip" type="button" data-preset="2400" aria-pressed="false">40m</button>
+          </div>
+        </div>
+        <p id="durationHint" class="hint" role="status" aria-live="polite"></p>
+      </div>
+
+      <div class="block">
+        <div class="block-head">
+          <h2>Milestones</h2>
+          <span class="note">Alert fires when this much time is left</span>
+        </div>
+        <ul id="milestoneList" class="ms-list"></ul>
+        <div class="add-row">
+          <input id="msInput" class="field" type="text" inputmode="numeric" autocomplete="off"
+                 spellcheck="false" placeholder="e.g. 05:00"
+                 aria-label="New milestone, time remaining, format minutes colon seconds">
+          <button id="btnAddMs" class="btn btn-secondary btn-add" type="button">Add</button>
+        </div>
+        <p id="msHint" class="hint" role="status" aria-live="polite"></p>
+        <p class="note note-block">Every alert plays a loud chime, then a spoken "N minutes left" (English, Turkish Ahmet voice). The time-out alert always fires at 00:00 — milestones never stop the timer.</p>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <button id="btnNotify" class="btn-quiet" type="button">Enable desktop alerts</button>
+      <span id="notifyState" class="note"></span>
+    </footer>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>

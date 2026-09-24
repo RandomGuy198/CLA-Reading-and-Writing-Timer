@@ -1,0 +1,468 @@
+/* Reading Timer — design tokens
+   Palette: warm paper neutrals + one ember accent. No gradients, no shadows, no glass. */
+
+:root {
+  color-scheme: light dark;
+
+  /* spacing scale */
+  --s1: 8px;
+  --s2: 12px;
+  --s3: 16px;
+  --s4: 24px;
+  --s5: 32px;
+
+  /* radius scale */
+  --rc: 8px;   /* controls: buttons, inputs, rows */
+  --rp: 999px; /* pills: preset chips */
+
+  /* light theme */
+  --paper: #F7F5F1;
+  --surface: #FFFFFF;
+  --ink: #1A1A18;
+  --muted: #6B6862;
+  --line: #E4E0D8;        /* decorative dividers */
+  --line-strong: #8A857C; /* control borders: >=3:1 vs surface and paper (WCAG 1.4.11) */
+  --accent: #C2410C;
+  --on-accent: #FFFFFF;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #161512;
+    --surface: #1F1E1A;
+    --ink: #F3F0E9;
+    --muted: #A8A29A;
+    --line: #35322C;
+    --line-strong: #857F75;
+    --accent: #F97316;
+    --on-accent: #201406;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-text-size-adjust: 100%;
+  min-height: 100vh;
+  min-height: 100dvh; /* tracks the visible viewport as mobile URL bars show/hide */
+}
+
+.app {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  /* never sit under a notch / home indicator (portrait or landscape) */
+  padding:
+    max(20px, env(safe-area-inset-top, 0px))
+    max(20px, env(safe-area-inset-right, 0px))
+    calc(28px + env(safe-area-inset-bottom, 0px))
+    max(20px, env(safe-area-inset-left, 0px));
+}
+
+/* ---------- top bar: brand + Hanoi clock ---------- */
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s2);
+  padding-bottom: var(--s2);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.clock {
+  font-size: 14px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.clock-label {
+  margin-right: var(--s1);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.clock time { color: var(--ink); font-weight: 600; }
+
+/* ---------- alert banner ---------- */
+
+.banner {
+  margin-top: var(--s3);
+  padding: 12px var(--s3);
+  background: var(--accent);
+  color: var(--on-accent);
+  border-radius: var(--rc);
+  font-weight: 600;
+  font-size: 16px;
+  animation: banner-in 0.18s ease-out;
+}
+
+@keyframes banner-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- timer ---------- */
+
+.timer {
+  margin-top: var(--s5);
+  text-align: center;
+}
+
+.state-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s2);
+  margin: 0 0 var(--s1);
+  min-height: 20px;
+}
+
+.state-tag {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+
+.state-tag.live { color: var(--accent); }
+
+.ends-at {
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.countdown {
+  /* fluid fallback: scales with viewport, capped by height for landscape */
+  font-size: clamp(3rem, min(15vw, 30vh), 6.5rem);
+  max-width: 100%;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.countdown.done { color: var(--accent); }
+
+/* Container-aware sizing: the countdown is sized from its own column, so the
+   longest string (12:34:56) always fits — 320px phone or 27" monitor alike. */
+@supports (font-size: 1cqi) {
+  .timer { container-type: inline-size; }
+  .countdown { font-size: clamp(2.75rem, min(21cqi, 34dvh), 6.5rem); }
+}
+
+.track {
+  height: 6px;
+  margin-top: 20px;
+  background: var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.25s linear;
+}
+
+.controls {
+  display: flex;
+  gap: var(--s2);
+  margin-top: var(--s4);
+}
+
+/* ---------- buttons & fields ---------- */
+
+.btn {
+  flex: 1;
+  min-height: 52px;
+  padding: 0 20px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  border: 1px solid transparent;
+  border-radius: var(--rc);
+  cursor: pointer;
+  transition: filter 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.btn-primary:hover { filter: brightness(0.94); }
+.btn-primary:active { filter: brightness(0.88); }
+
+.btn-secondary {
+  background: var(--surface);
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+}
+
+.btn-add { flex: 0 0 auto; min-width: 88px; }
+
+.btn-quiet {
+  min-height: 44px;
+  padding: 0 14px;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--rc);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.btn-quiet:hover { border-color: var(--accent); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.field {
+  min-height: 48px;
+  width: 132px;
+  max-width: 100%;
+  padding: 0 14px;
+  font-size: 16px; /* >=16px: prevents iOS focus zoom */
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--rc);
+}
+
+.field::placeholder { color: var(--muted); opacity: 1; }
+.field:disabled { opacity: 0.5; }
+
+/* ---------- setup blocks ---------- */
+
+.setup { margin-top: var(--s5); }
+
+.block { padding: var(--s4) 0; }
+.block + .block { border-top: 1px solid var(--line); }
+.block:first-child { border-top: 1px solid var(--line); padding-top: var(--s4); }
+
+.block-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--s1) var(--s2);
+  margin-bottom: var(--s2);
+}
+
+h2 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+.note {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.note-block { margin: 10px 0 0; }
+
+.duration-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  align-items: center;
+}
+
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1);
+}
+
+.chip {
+  min-height: 48px;
+  padding: 0 16px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--rp);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+
+.chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.chip:disabled { opacity: 0.5; cursor: default; pointer-events: none; }
+
+.hint {
+  min-height: 20px;
+  margin: var(--s1) 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.hint.err { color: var(--accent); font-weight: 600; }
+
+/* ---------- milestone list ---------- */
+
+.ms-list {
+  list-style: none;
+  margin: 0 0 var(--s2);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+
+.ms {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-height: 52px;
+  padding: 6px 8px 6px var(--s3);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--rc);
+}
+
+.ms-time {
+  min-width: 76px;
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.ms-unit { font-size: 14px; color: var(--muted); }
+
+.ms-sent {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.ms-remove {
+  margin-left: auto;
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  border-radius: var(--rc);
+  background: transparent;
+  color: var(--muted);
+  font-size: 22px;
+  line-height: 1;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.ms-remove:hover { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.ms-remove:disabled { opacity: 0.5; cursor: default; }
+
+.ms.empty {
+  justify-content: center;
+  background: transparent;
+  border-style: dashed;
+  color: var(--muted);
+  font-size: 14px;
+  padding: 14px;
+}
+
+.add-row {
+  display: flex;
+  gap: var(--s2);
+}
+
+.add-row .field { flex: 1; width: auto; min-width: 0; }
+
+/* ---------- footer ---------- */
+
+.foot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s2);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--line);
+}
+
+.foot .note { flex: 1; min-width: 180px; }
+
+/* ---------- narrow phones (320px-class) ---------- */
+
+@media (max-width: 400px) {
+  .app {
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .duration-row .field { width: 100%; }
+  .controls { gap: var(--s1); }
+  .state-row { flex-wrap: wrap; }
+}
+
+/* ---------- short screens (landscape phones, small windows):
+     compact the vertical rhythm so controls stay on screen ---------- */
+
+@media (max-height: 560px) {
+  .timer { margin-top: var(--s3); }
+  .track { margin-top: var(--s2); }
+  .controls { margin-top: var(--s3); }
+  .setup { margin-top: var(--s3); }
+  .block { padding: var(--s3) 0; }
+  .banner { margin-top: var(--s2); }
+}
+
+/* ---------- motion preference ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
